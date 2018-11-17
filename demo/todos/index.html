@@ -19,7 +19,7 @@
     <header class="header">
       <h1>todos</h1>
       <input autofocus="autofocus" autocomplete="off" placeholder="what need to be done?" class="new-todo" v-model.trim="inputtodo"
-        @keyup.13="addList" />
+        @keyup.13="addList" @dblclick="addList" />
     </header>
     <section class="main">
       <input type="checkbox" class="toggle-all" v-model="ischeckAll" @change="setcheckAll" />
@@ -35,14 +35,14 @@
       </ul>
     </section>
     <footer class="footer">
-      <span v-show="unCompletedNum!=0" class="todo-count"><strong>{{unCompletedNum}}</strong> {{unCompletedNum>1?
+      <span v-cloak v-show="unCompletedNum!=0" class="todo-count"><strong>{{unCompletedNum}}</strong> {{unCompletedNum>1?
         "items" : "item"}} left </span>
-      <ul class="filters">
+      <ul v-cloak class="filters">
         <li><a href="#/all" @click="status='All'" :class="{selected:status=='All'}">All</a></li>
         <li><a href="#/active" @click="status='Active'" :class="{selected:status=='Active'}">Active</a></li>
         <li><a href="#/completed" @click="status='Completed'" :class="{selected:status=='Completed'}">Completed</a></li>
       </ul>
-      <button @click="clear" class="clear-completed">Clear completed</button>
+      <button v-cloak @click="clear" class="clear-completed">Clear completed</button>
     </footer>
   </section>
   <footer class="info">
