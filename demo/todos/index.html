@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>Document</title>
+  <link rel="stylesheet" href="./css/index.css">
+  <style>
+    [v-cloak]{
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <section class="todoapp">
+    <header class="header">
+      <h1>todos</h1>
+      <input autofocus="autofocus" autocomplete="off" placeholder="what need to be done?" class="new-todo" v-model.trim="inputtodo"
+        @keyup.13="addList" />
+    </header>
+    <section class="main">
+      <input type="checkbox" class="toggle-all" v-model="ischeckAll" @change="setcheckAll" />
+      <ul v-cloak class="todo-list">
+        <li class="todo" v-for="(item,index) in currentList" :class="{completed:item.completed,editing:item==editTodo}"
+          @dblclick="enterEditing(item)">
+          <div class="view">
+            <input type="checkbox" class="toggle" v-model="item.completed" />
+            <label>{{item.content}}</label> <button class="destroy" @click="deleteList(index)"></button>
+          </div>
+          <input type="text" class="edit" @blur="editTodo=undefined" v-model="item.content" @keyup.13="editTodo=undefined" />
+        </li>
+      </ul>
+    </section>
+    <footer class="footer">
+      <span v-show="unCompletedNum!=0" class="todo-count"><strong>{{unCompletedNum}}</strong> {{unCompletedNum>1?
+        "items" : "item"}} left </span>
+      <ul class="filters">
+        <li><a href="#/all" @click="status='All'" :class="{selected:status=='All'}">All</a></li>
+        <li><a href="#/active" @click="status='Active'" :class="{selected:status=='Active'}">Active</a></li>
+        <li><a href="#/completed" @click="status='Completed'" :class="{selected:status=='Completed'}">Completed</a></li>
+      </ul>
+      <button @click="clear" class="clear-completed">Clear completed</button>
+    </footer>
+  </section>
+  <footer class="info">
+    <p>Double-click to edit a todo</p>
+    <p>Written by <a href="http://evanyou.me">Evan You</a></p>
+    <p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
+    <p>关于我 <a href="https://foolishsteamer.github.io/">link</a></p>
+  </footer>
+</body>
+<script src="./lib/vue.js"></script>
+<script>
+  window.onbeforeunload = function () {
+    localStorage.setItem("todoList", JSON.stringify(app.todoList));
+  }
+  var app = new Vue({
+    el: ".todoapp",
+    data: {
+      inputtodo: "",
+      todoList: [],
+      ischeckAll: false,
+      status: "All",
+      editTodo:""
+    },
+    methods: {
+      addList() {
+        this.todoList.unshift({
+          content: this.inputtodo,
+          completed: false
+        })
+      },
+      deleteList(index) {
+        if (window.confirm("sure?o(╥﹏╥)o")) {
+          this.todoList.splice(index, 1);
+        }
+      },
+      setcheckAll() {
+        this.todoList.forEach(element => {
+          element.completed = this.ischeckAll;
+        });
+      },
+      clear() {
+        for (let i = this.todoList.length - 1; i >= 0; i--) {
+          // 找到完成的 删除即可
+          if (this.todoList[i].completed == true) {
+            this.todoList.splice(i, 1);
+          }
+        }
+      },
+      enterEditing(item){
+        this.editTodo = item;
+      }
+    },
+    watch: {
+      todoList: {
+        handler: function (val, oldVal) {
+          let checkedNum = 0;
+          this.todoList.forEach(v => {
+            if (v.completed == true) {
+              checkedNum++;
+            }
+          });
+          this.ischeckAll = this.todoList.length == checkedNum;
+        },
+        deep: true
+      }
+    },
+    computed: {
+      unCompletedNum() {
+        let count = 0;
+        this.todoList.forEach(v => {
+          if (!v.completed) {
+            count++;
+          }
+        })
+        return count;
+      },
+      currentList() {
+        if (this.status == "All") {
+          return this.todoList;
+        } else if (this.status == "Active") {
+          var temArr = [];
+          this.todoList.forEach(v => {
+            if (!v.completed) {
+              temArr.push(v);
+            }
+          });
+
+        } else {
+          var temArr = [];
+          this.todoList.forEach(v => {
+            if (v.completed) {
+              temArr.push(v)
+            }
+          });
+
+        }
+        return temArr;
+      }
+    },
+    created() {
+      // this.todoList = JSON.parse(localStorage.getItem("todoList"))||[{content:"今天和新垣结衣结婚了吗",completed:false}];
+      this.todoList = JSON.parse(localStorage.getItem("todoList")) || [
+        { content: "今天和新垣结衣结婚了吗", completed:false }
+      ];
+    }
+  })
+</script>
+</html>
